@@ -8,7 +8,7 @@ import static io.restassured.RestAssured.given;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 
-public class NotMineBlogTests extends AbstractClass {
+public class MineBlogTests extends AbstractClass {
 
     @BeforeAll
     static void setUp() {
@@ -33,7 +33,6 @@ public class NotMineBlogTests extends AbstractClass {
     void getPublicationsPositiveTest() {
         given()
                 .header(xAuthToken, getToken())
-                .queryParam("owner", "notMe")
                 .queryParam("order", "ASC")
                 .queryParam("sort", "createdAt")
                 .queryParam("page", "1")
@@ -45,17 +44,16 @@ public class NotMineBlogTests extends AbstractClass {
 
     @Test
     @Order(2)
-    void getInvalidOwner() {
+    void getPage1() {
         int statusCode = given()
                 .header(xAuthToken, getToken())
-                .queryParam("owner", "gerrHerr")
                 .queryParam("order", "ASC")
                 .queryParam("sort", "createdAt")
                 .queryParam("page", "1")
                 .when()
                 .get(getBaseUrl() + "api/posts")
                 .statusCode();
-        assertThat("Expected, that this owner does not exist", statusCode, equalTo(400));
+        assertThat("Assert", statusCode, equalTo(200));
 
     }
 
@@ -64,7 +62,6 @@ public class NotMineBlogTests extends AbstractClass {
     @Order(3)
     void getUnauthorizedUserTest() {
         given()
-                .queryParam("owner", "notMe")
                 .queryParam("order", "ASC")
                 .queryParam("sort", "createdAt")
                 .queryParam("page", "1")
@@ -80,10 +77,9 @@ public class NotMineBlogTests extends AbstractClass {
     void getUnexistablePageTest() {
         int statusCode = given()
                 .header(xAuthToken, getToken())
-                .queryParam("owner", "notMe")
                 .queryParam("order", "ASC")
                 .queryParam("sort", "createdAt")
-                .queryParam("page", "-5")
+                .queryParam("page", "0,01")
                 .when()
                 .get(getBaseUrl() + "api/posts")
                 .statusCode();
@@ -93,11 +89,10 @@ public class NotMineBlogTests extends AbstractClass {
 
     @Test
     @Order(5)
-    void getOrderDESCTest() {
+    void getOrderASCTest() {
         given()
                 .header(xAuthToken, getToken())
-                .queryParam("owner", "notMe")
-                .queryParam("order", "DESC")
+                .queryParam("order", "ASC")
                 .queryParam("sort", "createdAt")
                 .queryParam("page", "5")
                 .when()
